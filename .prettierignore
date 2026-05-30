@@ -1,0 +1,15 @@
+# Không format các file/thư mục sinh tự động hoặc của bên thứ ba
+node_modules
+.next
+dist
+build
+coverage
+
+# File khóa / sinh tự động
+package-lock.json
+*.tsbuildinfo
+next-env.d.ts
+
+# Tài liệu & dữ liệu giữ nguyên định dạng thủ công
+docs
+*.md

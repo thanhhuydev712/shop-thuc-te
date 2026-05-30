@@ -1,0 +1,24 @@
+# Phụ thuộc
+/node_modules
+/.pnp
+.pnp.js
+
+# Build của Next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+
+# Biến môi trường (chứa bí mật) — KHÔNG đẩy lên git
+.env
+.env*.local
+
+# Prisma
+/prisma/migrations/dev.db*
+
+# Log & cache
+npm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+.vercel
+coverage

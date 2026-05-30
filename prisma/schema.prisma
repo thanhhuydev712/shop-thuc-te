@@ -1,0 +1,101 @@
+// ============================================================
+// PRISMA SCHEMA — Mô tả cấu trúc database bằng cú pháp dễ đọc.
+// Từ file này, Prisma sinh ra "client" để ta truy vấn DB an toàn kiểu.
+// Lệnh: npm run db:generate (sinh client), npm run db:push (đẩy bảng lên DB)
+// Giải thích chi tiết: docs/03-DATABASE-PRISMA.md · docs/GIAI-THICH-TOAN-BO.md
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // Bật extension pgvector để lưu "vector embedding" phục vụ tìm kiếm ngữ nghĩa.
+  extensions = [vector]
+}
+
+// ---------------- NGƯỜI DÙNG ----------------
+enum Role {
+  USER  // Khách hàng thông thường
+  ADMIN // Quản trị viên
+}
+
+model User {
+  id           String   @id @default(cuid()) // Khóa chính dạng chuỗi ngẫu nhiên
+  email        String   @unique               // Email không trùng
+  name         String
+  passwordHash String                          // Mật khẩu đã được băm (KHÔNG lưu mật khẩu thô)
+  role         Role     @default(USER)
+  orders       Order[]                         // 1 user có nhiều đơn hàng
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------- DANH MỤC ----------------
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique // Dùng cho URL thân thiện, ví dụ: /danh-muc/dien-thoai
+  products Product[]
+}
+
+// ---------------- SẢN PHẨM ----------------
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  // Giá lưu bằng ĐỒNG (số nguyên) để tránh sai số khi tính tiền với số thực.
+  price       Int
+  stock       Int         @default(0) // Số lượng tồn kho
+  imageUrl    String
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  // Vector embedding 384 chiều — phục vụ tìm kiếm ngữ nghĩa (pgvector).
+  // Prisma chưa hỗ trợ kiểu vector native → dùng Unsupported + raw SQL khi query.
+  embedding   Unsupported("vector(384)")?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId]) // Tạo index để lọc sản phẩm theo danh mục nhanh hơn
+}
+
+// ---------------- ĐƠN HÀNG ----------------
+enum OrderStatus {
+  PENDING   // Chờ xử lý
+  PAID      // Đã thanh toán
+  SHIPPED   // Đang giao
+  COMPLETED // Hoàn tất
+  CANCELLED // Đã hủy
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  status    OrderStatus @default(PENDING)
+  total     Int         // Tổng tiền (đồng)
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+// Bảng trung gian: 1 đơn hàng gồm nhiều dòng sản phẩm.
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  // Lưu lại giá tại thời điểm mua (giá sản phẩm có thể đổi sau này).
+  unitPrice Int
+
+  @@index([orderId])
+}

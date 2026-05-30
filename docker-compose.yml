@@ -1,0 +1,42 @@
+# ============================================================
+# Docker Compose — chạy PostgreSQL (pgvector) + Redis cục bộ.
+# Khởi động: npm run docker:up
+# Dừng:      npm run docker:down
+# Giải thích: docs/06-DEVOPS-MONITORING.md
+# ============================================================
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: shop-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop_password
+      POSTGRES_DB: shop_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d shop_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: shop-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

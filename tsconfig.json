@@ -1,0 +1,28 @@
+{
+  // ============================================================
+  // Cấu hình TypeScript cho toàn dự án.
+  // TypeScript giúp bắt lỗi kiểu dữ liệu ngay khi viết code,
+  // thay vì để lỗi xảy ra lúc chạy (runtime).
+  // ============================================================
+  "compilerOptions": {
+    "target": "ES2022", // Trình biên dịch xuất ra cú pháp JS chuẩn ES2022
+    "lib": ["dom", "dom.iterable", "ES2022"], // Các thư viện kiểu có sẵn (DOM cho trình duyệt)
+    "allowJs": true, // Cho phép trộn lẫn file .js
+    "skipLibCheck": true, // Bỏ qua kiểm tra kiểu trong node_modules (build nhanh hơn)
+    "strict": true, // Bật chế độ kiểm tra nghiêm ngặt (rất nên dùng khi học)
+    "noEmit": true, // Không tự xuất file .js (Next.js lo việc build)
+    "esModuleInterop": true, // Tương thích import giữa CommonJS và ES Module
+    "module": "esnext",
+    "moduleResolution": "bundler", // Cách Next.js/Vite phân giải module hiện đại
+    "resolveJsonModule": true, // Cho phép import file .json
+    "isolatedModules": true,
+    "jsx": "preserve", // Giữ nguyên JSX để Next.js xử lý
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./src/*"] // Đường dẫn rút gọn: "@/lib/x" = "./src/lib/x"
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

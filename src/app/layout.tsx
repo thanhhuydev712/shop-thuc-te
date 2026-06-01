@@ -5,6 +5,9 @@
 // ============================================================
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+// Speed Insights: đo hiệu năng thực tế (Core Web Vitals) từ trình duyệt người dùng
+// rồi gửi về dashboard Vercel. Chỉ thu thập số liệu khi chạy trên Vercel.
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -41,6 +44,8 @@ export default function RootLayout({
             </a>
           </footer>
         </Providers>
+        {/* Đặt cuối <body>: chèn script đo Web Vitals, không ảnh hưởng layout */}
+        <SpeedInsights />
       </body>
     </html>
   );

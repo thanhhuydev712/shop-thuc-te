@@ -5,6 +5,7 @@
 // ============================================================
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -41,6 +42,7 @@ export default function RootLayout({
             </a>
           </footer>
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
